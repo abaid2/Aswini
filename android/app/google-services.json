@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1023371041681",
+    "project_id": "aswini-33b6a",
+    "storage_bucket": "aswini-33b6a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1023371041681:android:5e02de67ab37f7fc801830",
+        "android_client_info": {
+          "package_name": "com.aswini"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1023371041681-pc3v28tgji0r8t51s369dio7g9gaf1hk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7gUf8V4iGJWxVSfqvjIwpEklqWVfOuhE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1023371041681-pc3v28tgji0r8t51s369dio7g9gaf1hk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
