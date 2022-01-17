@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Button, FlatList, SafeAreaView, TouchableOpacity, Platform, LogBox } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { elevate } from 'react-native-elevate';
 import FastImage from 'react-native-fast-image';
@@ -23,27 +23,30 @@ const sections = ['AMCANA', 'Covid 19', 'English', 'Fandoms', 'Mental Health', '
 
 function Section(props) {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   let section = props.name;
   useEffect(() => {
     async function fetchData() {
         const doc = await firestore().collection('Sections').doc(section).get();
         const docData = doc.data();
-        setData(docData.cover.map((cover, index) => { return { id: index, cover: cover, pdf: docData.pdf[index] }}));
+        setData(docData.cover.map((cover, index) => { return { id: section + '.' + index, cover: cover, pdf: docData.pdf[index] }}));
     }
     fetchData();
   }, []);
 
-  const renderItem = ({item}) => { return (
+  const renderItem = useCallback(({item}) => { return (
     <TouchableOpacity onPress={() => props.navigation.navigate('Pdf', { name: section, item: item })}>
-      <FastImage source={{uri: item.cover, priority: FastImage.priority.high }}  style={styles.cover} />
+     <FastImage source={loading ? require('../assets/placeholder.png') : {uri: item.cover, priority: FastImage.priority.high}}  onLoad={() => setLoading(false)} style={styles.cover} />
     </TouchableOpacity>
-   ) }
+  ) }, [loading]);
 
+  const flatListFooter = useCallback(() => { return <View style={styles.footer1}></View>}, []);
+  const keyExtractor = useCallback((item) => item.id, []);
   return (
     <View style={styles.section}>
       <Text style={styles.sectionName}>{section}</Text>
       <View style={styles.separator} />
-      <FlatList horizontal data={data} renderItem={renderItem} keyExtractor={(item) => item.id} />
+      <FlatList style={styles.coverList} horizontal maxToRenderPerBatch={8} showsHorizontalScrollIndicator={false} data={data} renderItem={renderItem} keyExtractor={keyExtractor} ListFooterComponent={flatListFooter} />
       <View style={styles.separator} />
       <TouchableOpacity style={styles.button} onPress={() => props.navigation.navigate('Section', { name: section, data: data })}>
         <Text style={styles.buttonText}>See All</Text>
@@ -54,11 +57,15 @@ function Section(props) {
 }
 
 function Home({ navigation }) {
-    const renderItem = ({item}) => { return <Section name={item} navigation={navigation} /> };
+    const [sectionList, setSectionList] = useState([]);
+    useEffect(() => { setSectionList(sections.sort(() => Math.random() - 0.5)); }, []);
+    const flatListHeader = useCallback(() => { return <Text style={styles.title}>Aswini</Text> }, []);
+    const flatListFooter = useCallback(() => { return <View style={styles.footer2}></View>}, []);
+    const renderItem = useCallback(({item}) => { return <Section name={item} navigation={navigation} /> }, []);
+    const keyExtractor = useCallback((item) => item, []);
     return (
     <SafeAreaView style={{backgroundColor: 'white'}}>
-      {/* <Text style={styles.title}>Aswini</Text> */}
-      <FlatList style={styles.coverList} data={sections} renderItem={renderItem} keyExtractor={(item) => item} />
+      <FlatList ListHeaderComponent={flatListHeader} ListFooterComponent={flatListFooter} showsVerticalScrollIndicator={false} data={sectionList} renderItem={renderItem} keyExtractor={keyExtractor} />
     </SafeAreaView>
     );
 }
@@ -81,10 +88,12 @@ export default function HomeTabs() {
 }
 
 const styles = StyleSheet.create({
-  // title: {
-  //   fontSize: 50
-
-  // },
+  title: {
+    fontSize: 60,
+    fontFamily: 'Autography',
+    padding: 10,
+    color: 'black'
+  },
   section: {
     backgroundColor: '#ffe3d7',
     // paddingBottom: 20,
@@ -92,6 +101,7 @@ const styles = StyleSheet.create({
     ...elevate(5)
   },
   sectionName: {
+    backgroundColor: '#FFF4EF',
     color: '#a26857',
     // color: 'white',
     padding: 10,
@@ -112,9 +122,10 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   coverList: {
+    height: 190
   },
   button: {
-    // backgroundColor: 'red',
+    backgroundColor: '#FFF4EF',
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -126,5 +137,11 @@ const styles = StyleSheet.create({
     fontFamily: 'WeissStd-Bold',
     fontSize: 20,
     color: '#0492c2'
+  },
+  footer1: {
+    width: 10,
+  },
+  footer2: {
+    height: 100,
   }
 });

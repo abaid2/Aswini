@@ -27,22 +27,33 @@ const removeFavorite = async (key) => {
 }
 
 export default function PdfScreen({ route, navigation }) {
-    const [isFavorite, setIsFavorite] = useState(false);
     const item = route.params.item;
     const section = route.params.name;
+    const key = item.id;
+    const [favorite, setFavorite] = useState(false);
     useLayoutEffect(() => {
+        const checkFavorite = async (key) => {
+            try {
+              const value = await AsyncStorage.getItem(key);
+              if (value !== null) {
+                  setFavorite(true);
+              }
+            } catch(e) {
+              console.log(e);
+            }
+        }
+        checkFavorite(key).then(
         navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity onPress={() => { 
-                    setIsFavorite(!isFavorite);
-                    let key = section.concat(item.id);
-                    if (!isFavorite) { storeFavorite(key, item); } else { removeFavorite(key); }
+                    setFavorite(!favorite);
+                    if (!favorite) { storeFavorite(key, item); } else { removeFavorite(key); }
                 }}>
-                    {isFavorite ? <HeartSolid style={styles.favoriteButton} width={30} height={30} fill='red'/> : <HeartLight style={styles.favoriteButton} width={30} height={30} fill='black' />}
+                    {favorite ? <HeartSolid style={styles.favoriteButton} width={30} height={30} fill='red'/> : <HeartLight style={styles.favoriteButton} width={30} height={30} fill='black' />}
                 </TouchableOpacity>
             ),
-        })
-    }, [navigation, isFavorite]);
+        }));
+    }, [navigation, favorite]);
     return (
         <SafeAreaView style={styles.container}>
             <Pdf

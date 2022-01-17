@@ -6,6 +6,7 @@ import FastImage from 'react-native-fast-image';
 
 export default function Section({ route, navigation }) {
     const data = route.params.data;
+    const [loading, setLoading] = useState(true);
     return (
         <FlatGrid
             itemDimension={150}
@@ -16,7 +17,7 @@ export default function Section({ route, navigation }) {
             spacing={25}
             renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => navigation.navigate('Pdf', { name: route.params.name, item: item })}>
-                    <FastImage source={{uri: item.cover, priority: FastImage.priority.high }}  style={styles.cover} />
+                    <FastImage source={loading ? require('../assets/placeholder.png') : {uri: item.cover, priority: FastImage.priority.high }} onLoad={() => setLoading(false)} style={styles.cover} />
                 </TouchableOpacity>
             )}
         />
